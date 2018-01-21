@@ -1,0 +1,34 @@
+THE LISKOV SUBSTITUTION PRINCIPLE
+
+Substitutability is a principle in object-oriented programming introduced by Barbara Liskov in a 1987 conference
+keynote stating that, if class B is a subclass of class A, then wherever A is expected, B can be used instead:
+
+class A {...}
+
+class B extends A {...}
+
+public void method(A obj) {...}
+
+A a = new B(); // Assignment OK
+method(new B()); // Passing as parameter OK
+
+This also applies when the type is an interface, where there doesn't need to any hierarchical relationship between
+the objects:
+
+interface Foo {
+	void bar();
+}
+
+class A implements Foo {
+	void bar() {...}
+}
+
+class B implements Foo {
+	void bar() {...}
+}
+
+List<Foo> foos = new ArrayList<>();
+foos.add(new A()); // OK
+foos.add(new B()); // OK
+
+Now the list contains objects that are not from the same class hierarchy.

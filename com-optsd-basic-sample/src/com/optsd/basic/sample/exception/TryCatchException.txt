@@ -1,0 +1,165 @@
+CATCHING AN EXCEPTION WITH TRY-CATCH
+
+TRY-CATCH WITH ONE CATCH BLOCK
+
+The most simple form looks like this:
+
+	try {
+		doSomething();
+	} catch (SomeException e) {
+		handle(e);
+	}
+	// next statement
+
+The behavior of a simple try...catch is as follows:
+
+- The statements in the try block are executed.
+- If no exception is thrown by the statements in the try block, then control passes to the next statement after
+  the try...catch.
+- If an exception is thrown within the try block.
+  + The exception object is tested to see if it is an instance of SomeException or a subtype.
+  + If it is, then the catch block will catch the exception:
+     - The variable e is bound to the exception object.
+     - The code within the catch block is executed.
+     - If that code throws an exception, then the newly thrown exception is propagated in place of the original one.
+     - Otherwise, control passes to the next statement after the try...catch.
+  + If it is not, the original exception continues to propagate.
+  
+  
+TRY-CATCH WITH MULTIPLE CATCHES
+
+A try...catch can also have multiple catch blocks. For example:
+
+	try {
+		doSomething();
+	} catch (SomeException e) {
+		handleOneWay(e)
+	} catch (SomeOtherException e) {
+		handleAnotherWay(e);
+	}
+	// next statement
+
+If there are multiple catch blocks, they are tried one at a time starting with the first one, until a match is found for
+the exception. The corresponding handler is executed (as above), and then control is passed to the next statement
+after the try...catch statement. The catch blocks after the one that matches are always skipped, even if the
+handler code throws an exception.
+
+The "top down" matching strategy has consequences for cases where the exceptions in the catch blocks are not
+disjoint. For example:
+
+	try {
+		throw new RuntimeException("test");
+	} catch (Exception e) {
+		System.out.println("Exception");
+	} catch (RuntimeException e) {
+		System.out.println("RuntimeException");
+	}
+
+This code snippet will output "Exception" rather than "RuntimeException". Since RuntimeException is a subtype of
+Exception, the first (more general) catch will be matched. The second (more specific) catch will never be executed.
+
+The lesson to learn from this is that the most specific catch blocks (in terms of the exception types) should appear
+first, and the most general ones should be last. (Some Java compilers will warn you if a catch can never be
+executed, but this is not a compilation error.)
+
+
+MULTI-EXCEPTION CATCH BLOCKS
+
+Version >= Java SE 7
+Starting with Java SE 7, a single catch block can handle a list of unrelated exceptions. The exception type are listed,
+separated with a vertical bar (|) symbol. For example:
+
+	try {
+		doSomething();
+	} catch (SomeException | SomeOtherException e) {
+		handleSomeException(e);
+	}
+
+The behavior of a multi-exception catch is a simple extension for the single-exception case. The catch matches if
+the thrown exception matches (at least) one of the listed exceptions.
+
+There is some additional subtlety in the specification. The type of e is a synthetic union of the exception types in the
+list. When the value of e is used, its static type is the least common supertype of the type union. However, if e is
+rethrown within the catch block, the exception types that are thrown are the types in the union. For example:
+
+public void method() throws IOException, SQLException
+try {
+	doSomething();
+} catch (IOException | SQLException e) {
+	report(e);
+	throw e;
+}
+
+In the above, IOException and SQLException are checked exceptions whose least common supertype is Exception.
+This means that the report method must match report(Exception). However, the compiler knows that the throw
+can throw only an IOException or an SQLException. Thus, method can be declared as throws IOException,
+SQLException rather than throws Exception. (Which is a good thing: see Pitfall - Throwing Throwable, Exception,
+Error or RuntimeException.)
+
+
+The try...catch...finally statement combines exception handling with clean-up code. The finally block
+contains code that will be executed in all circumstances. This makes them suitable for resource management, and
+other kinds of cleanup.
+
+TRY-FINALLY
+Here is an example of the simpler (try...finally) form:
+	try {
+		doSomething();
+	} finally {
+		cleanUp();
+	}
+	
+The behavior of the try...finally is as follows:
+
+- The code in the try block is executed.
+- If no exception was thrown in the try block:
+	+ The code in the finally block is executed.
+	+ If the finally block throws an exception, that exception is propagated.
+	+ Otherwise, control passes to the next statement after the try...finally.
+- If an exception was thrown in the try block:
+	+ The code in the finally block is executed.
+	+ If the finally block throws an exception, that exception is propagated.
+	+ Otherwise, the original exception continues to propagate.
+	
+The code within finally block will always be executed. (The only exceptions are if SYSTEM.EXIT(INT) is called, or if
+the JVM panics.) Thus a finally block is the correct place code that always needs to be executed; e.g. closing files
+and other resources or releasing locks.
+
+
+TRY-CATCH-FINALLY
+Our second example shows how catch and finally can be used together. It also illustrates that cleaning up
+resources is not straightforward.
+
+	// This code snippet writes the first line of a file to a string
+	String result = null;
+	Reader reader = null;
+	try {
+		reader = new BufferedReader(new FileReader(fileName));
+		result = reader.readLine();
+	} catch (IOException ex) {
+		Logger.getLogger.warn("Unexpected IO error", ex); // logging the exception
+	} finally {
+		if (reader != null) {
+		try {
+		reader.close();
+		} catch (IOException ex) {
+		// ignore / discard this exception
+		}
+		}
+	}
+	
+The complete set of (hypothetical) behaviors of try...catch...finally in this example are too complicated to
+describe here. The simple version is that the code in the finally block will always be executed.
+
+Looking at this from the perspective of resource management:
+
+ - We declare the "resource" (i.e. reader variable) before the try block so that it will be in scope for the finally block.
+ - By putting the new FileReader(...), the catch is able to handle any IOError exception from thrown when opening the file.
+ - We need a reader.close() in the finally block because there are some exception paths that we cannot
+   intercept either in the try block or in catch block.
+ - However, since an exception might have been thrown before reader was initialized, we also need an explicit null test.
+ - Finally, the reader.close() call might (hypothetically) throw an exception. We don't care about that, but if we
+   don't catch the exception at source, we would need to deal with it further up the call stack.
+
+Version >= Java SE 7
+Java 7 and later provide an alternative try-with-resources syntax which significantly simplifies resource clean-up.

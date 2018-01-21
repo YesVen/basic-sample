@@ -1,0 +1,87 @@
+ADVANCED FEATURES OF EXCEPTIONS
+
+EXAMINING THE CALLSTACK PROGRAMMATICALLY:
+
+Version >= Java SE 1.4
+The primary use of exception stacktraces is to provide information about an application error and its context so
+that the programmer can diagnose and fix the problem. Sometimes it can be used for other things. For example, a
+SecurityManager class may need to examine the call stack to decide whether the code that is making a call should
+be trusted.
+
+You can use exceptions to examine the call stack programatically as follows:
+
+	Exception ex = new Exception(); // this captures the call stack
+	StackTraceElement[] frames = ex.getStackTrace();
+	System.out.println("This method is " + frames[0].getMethodName());
+	System.out.println("Called from method " + frames[1].getMethodName());
+
+There are some important caveats on this:
+
+1. The information available in a StackTraceElement is limited. There is no more information available than is
+displayed by printStackTrace. (The values of the local variables in the frame are not available.)
+
+2. The javadocs for getStackTrace() state that a JVM is permitted to leave out frames:
+
+	"Some virtual machines may, under some circumstances, omit one or more stack frames from the
+	stack trace. In the extreme case, a virtual machine that has no stack trace information concerning
+	this throwable is permitted to return a zero-length array from this method."
+	
+	
+OPTIMIZING EXCEPTION CONSTRUCTION:
+
+As mentioned elsewhere, constructing an exception is rather expensive because it entails capturing and recording
+information about all stack frames on the current thread. Sometimes, we know that that information is never going
+to be used for a given exception; e.g. the stacktrace will never be printed. In that case, there is an implementation
+trick that we can use in a custom exception to cause the information to not be captured.
+
+The stack frame information needed for stacktraces, is captured when the Throwable constructors call the
+Throwable.fillInStackTrace() method. This method is public, which means that a subclass can override it. The
+trick is to override the method inherited from Throwable with one that does nothing; e.g.
+
+	public class MyException extends Exception {
+		// constructors
+		@Override
+		public void fillInStackTrace() {
+			// do nothing
+		}
+	}
+The problem with this approach is that an exception that overrides fillInStackTrace() can never capture theJava® Notes for Professionals 62
+stacktrace, and is useless in scenarios where you need one.
+
+
+ERASING OR REPLACING THE STACKTRACE:
+
+Version >= Java SE 1.4
+In some situations, the stacktrace for an exception created in the normal way contains either incorrect information,
+or information that the developer does not want to reveal to the user. For these scenarios, the
+Throwable.setStackTrace can be used to replace the array of StackTraceElement objects that holds the
+information.
+
+For example, the following can be used to discard an exception's stack information:
+
+	exception.setStackTrace(new StackTraceElement[0]);
+	
+SUPPRESSED EXCEPTIONS:
+
+Version >= Java SE 7
+Java 7 introduced the try-with-resources construct, and the associated concept of exception suppression. Consider
+the following snippet:
+
+	try (Writer w = new BufferedWriter(new FileWriter(someFilename))) {
+	// do stuff
+	int temp = 0 / 0; // throws an ArithmeticException
+	}
+	
+When the exception is thrown, the try will call close() on the w which will flush any buffered output and then close
+the FileWriter. But what happens if an IOException is thrown while flushing the output?
+
+What happens is that any exception that is thrown while cleaning up a resource is suppressed. The exception is
+caught, and added to the primary exception's suppressed exception list. Next the try-with-resources will continue
+with the cleanup of the other resources. Finally, primary exception will be rethrown.
+
+A similar pattern occurs if an exception it thrown during the resource initialization, or if the try block completes
+normally. The first exception thrown becomes the primary exception, and subsequent ones arising from cleanup
+are suppressed.
+
+The suppressed exceptions can be retrieved from the primary exception object by calling
+getSuppressedExceptions.

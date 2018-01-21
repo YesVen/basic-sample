@@ -1,0 +1,61 @@
+THE JAVA EXCEPTION HIERARCHY - UNCHECKED AND CHECKED EXCEPTIONS
+
+All Java exceptions are instances of classes in the Exception class hierarchy. This can be represented as follows:
+
+- java.lang.Throwable - This is the base class for all exception classes. Its methods and constructors
+  implement a range of functionality common to all exceptions.
+
+	+ java.lang.Exception - This is the superclass of all normal exceptions.
+	 	+ various standard and custom exception classes.
+		+ java.lang.RuntimeException - This the superclass of all normal exceptions that are unchecked exceptions.
+			- various standard and custom runtime exception classes.
+	+ java.lang.Error - This is the superclass of all "fatal error" exceptions.
+	
+	
+Notes:
+
+1. The distinction between checked and unchecked exceptions is described below.
+2. The Throwable, Exception and RuntimeException class should be treated as abstract; see Pitfall - Throwing
+Throwable, Exception, Error or RuntimeException.
+3. The Error exceptions are thrown by the JVM in situations where it would be unsafe or unwise for an
+application to attempt to recover.
+4. It would be unwise to declare custom subtypes of Throwable. Java tools and libraries may assume that Error
+and Exception are the only direct subtypes of Throwable, and misbehave if that assumption is incorrect.
+
+
+Checked versus Unchecked Exceptions
+
+One of the criticisms of exception support in some programming languages is that is difficult to know which
+exceptions a given method or procedure might throw. Given that an unhandled exception is liable to cause a
+program to crash, this can make exceptions a source of fragility.
+
+The Java language addresses this concern with the checked exception mechanism. First, Java classifies exceptions
+into two categories:
+
+- Checked exceptions typically represent anticipated events that an application should be able to deal with. For
+instance, IOException and its subtypes represent error conditions that can occur in I/O operations. Examples
+include, file opens failing because a file or directory does not exist, network reads and writes failing because
+a network connection has been broken and so on.
+
+- Unchecked exceptions typically represent unanticipated events that an application cannot deal with. These
+are typically the result of a bug in the application.
+
+(In the following, "thrown" refers to any exception thrown explicitly (by a throw statement), or implicitly (in a failed
+dereference, type cast and so on). Similarly, "propagated" refers to an exception that was thrown in a nested call,
+and not caught within that call. The sample code below will illustrate this.)
+
+
+The second part of the checked exception mechanism is that there are restrictions on methods where a checked
+exception may occur:
+
+- When a checked exception is thrown or propagated in a method, it must either be caught by the method, or
+  listed in the method's throws clause. (The significance of the throws clause is described in this example.)
+- When a checked exception is thrown or propagated in an initializer block, it must be caught the the block.
+- A checked exception cannot be propagated by a method call in a field initialization expression. (There is no
+way to catch such an exception.)
+
+
+In short, a checked exception must be either handled, or declared.
+
+These restrictions do not apply to unchecked exceptions. This includes all cases where an exception is thrown
+implicitly, since all such cases throw unchecked exceptions.
