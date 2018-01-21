@@ -1,0 +1,24 @@
+CHEAT-SHEET
+
+Goal 															Code
+------------------------------------------------------------------------------------------------------------------------
+Collect to a List 												Collectors.toList()
+
+Collect to an ArrayList with preallocated size 					Collectors.toCollection(() -> new ArrayList<>(size))
+
+Collect to a Set 												Collectors.toSet()
+
+Collect to a Set with better iteration							Collectors.toCollection(() -> new LinkedHashSet<>())
+performance 													
+
+Collect to a case-insensitive									Collectors.toCollection(() -> new
+Set<String>														TreeSet<>(String.CASE_INSENSITIVE_ORDER))
+
+Collect to an EnumSet<AnEnum> (best								Collectors.toCollection(() -> EnumSet.noneOf(AnEnum.class))
+performance for enums) 	
+
+Collect to a Map<K,V> with unique keys 							Collectors.toMap(keyFunc,valFunc)
+
+Map MyObject.getter() to unique	MyObject						Collectors.toMap(MyObject::getter, Function.identity())								
+
+Map MyObject.getter() to multiple MyObjects						Collectors.groupingBy(MyObject::getter)

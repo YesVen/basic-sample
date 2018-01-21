@@ -1,0 +1,40 @@
+Abstract classes vs Interfaces
+
+Abstract classes and interfaces both provide a way to define method signatures while requiring the
+extending/implementing class to provide the implementation.
+
+There are two key differences between abstract classes and interfaces:
+
++ A class may only extend a single class, but may implement many interfaces.
++ An abstract class can contain instance (non-static) fields, but interfaces may only contain static fields.
++ An abstract class can have a constructor, unlike an interface.
+
+When to use abstract classes: To implement the same or different behaviour among multiple related objects
+When to use interfaces: to implement a contract by multiple unrelated objects
+
+Abstract classes create "is a" relations while interfaces provide "has a" capability.
+
+
+Version < Java SE 8
+- Methods declared in interfaces could not contain implementations, so abstract classes were used when it was
+useful to provide additional methods which implementations called the abstract methods.
+
+Version >= Java SE 8
+- Java 8 allows interfaces to contain default methods, usually implemented using the other methods of the interface,
+making interfaces and abstract classes equally powerful in this regard.
+
+
+Consider using abstract classes if...
+
+1. You want to share code among several closely related classes.
+2. You expect that classes that extend your abstract class have many common methods or fields, or require
+access modifiers other than public (such as protected and private).
+3. You want to declare non-static or non-final fields.
+
+Consider using interfaces if...
+
+1. You expect that unrelated classes would implement your interface. For example, many unrelated objects can
+implement the Serializable interface.
+2. You want to specify the behaviour of a particular data type but are not concerned about who implements its
+behaviour.
+3. You want to take advantage of multiple inheritance of type.

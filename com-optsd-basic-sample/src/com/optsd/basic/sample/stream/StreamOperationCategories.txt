@@ -1,0 +1,43 @@
+STREAM OPERATIONS CATEGORIES
+
+Stream operations fall into two main categories, intermediate and terminal operations, and two sub-categories,
+stateless and stateful.
+
+Intermediate Operations:
+An intermediate operation is always lazy, such as a simple Stream.map. It is not invoked until the stream is actually
+consumed. This can be verified easily:
+
+Arrays.asList(1, 2 ,3).stream().map(i -> {
+	throw new RuntimeException("not gonna happen");
+	return i;
+	});
+	
+Intermediate operations are the common building blocks of a stream, chained after the source and are usually
+followed by a terminal operation triggering the stream chain.
+
+
+Terminal Operations:
+Terminal operations are what triggers the consumption of a stream. Some of the more common are
+Stream.forEach or Stream.collect. They are usually placed after a chain of intermediate operations and are
+almost always eager.
+
+
+Stateless Operations:
+Statelessness means that each item is processed without the context of other items. Stateless operations allow for
+memory-efficient processing of streams. Operations like Stream.map and Stream.filter that do not require
+information on other items of the stream are considered to be stateless.
+
+
+Stateful operations:
+Statefulness means the operation on each item depends on (some) other items of the stream. This requires a state
+to be preserved. Statefulness operations may break with long, or infinite, streams. Operations like Stream.sorted
+require the entirety of the stream to be processed before any item is emitted which will break in a long enough
+stream of items. This can be demonstrated by a long stream (run at your own risk):
+
+// works - stateless stream
+long BIG_ENOUGH_NUMBER = 999999999;
+IntStream.iterate(0, i -> i + 1).limit(BIG_ENOUGH_NUMBER).forEach(System.out::println);
+
+This will cause an out-of-memory due to statefulness of Stream.sorted:
+// Out of memory - stateful stream
+IntStream.iterate(0, i -> i + 1).limit(BIG_ENOUGH_NUMBER).sorted().forEach(System.out::println);
