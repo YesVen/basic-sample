@@ -155,7 +155,7 @@ public class AdvancedGeneric {
 		System.out.println(obj1 instanceof String); // true
 		System.out.println(obj2 instanceof String); // false, it's an Integer, not a String
 	}
-
+	
 	
 	public interface DifferentWaysToImplementGenericInterfaceOrExtendsGenericClass
 	{

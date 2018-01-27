@@ -51,7 +51,7 @@ public class GenericsBoundedWildcard {
 
 		public void addApple(Collection<? super Apple> apples) {}
 	}
-
+	
 	
 	// extendsMultipleUpperBounds
 	// Since multiple inheritance is not allowed, you can use at most one class as a bound and it must be the first listed.
@@ -60,7 +60,7 @@ public class GenericsBoundedWildcard {
 		Collections.sort(n);
 	}
 	
-
+	
 	public class GenericsTest {
 
 		@Test

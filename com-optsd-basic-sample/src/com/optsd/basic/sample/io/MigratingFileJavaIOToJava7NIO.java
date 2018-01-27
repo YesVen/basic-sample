@@ -4,27 +4,18 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.net.URI;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.DirectoryStream;
-import java.nio.file.FileSystem;
 import java.nio.file.FileVisitOption;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
-import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardOpenOption;
-import java.nio.file.WatchKey;
-import java.nio.file.WatchService;
-import java.nio.file.WatchEvent.Kind;
-import java.nio.file.WatchEvent.Modifier;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.EnumSet;
-import java.util.Iterator;
 import java.util.List;
 
 public class MigratingFileJavaIOToJava7NIO {
@@ -126,45 +117,5 @@ public class MigratingFileJavaIOToJava7NIO {
 			}
 		});
 		
-		
-		// Recursive folder iteration
-		// -> IO
-		recurseFolder(folder);
-		
-		// -> NIO
-		// Note: Symbolic links are NOT followed unless explicitly passed as an argument to Files.walkFileTree
-		Files.walkFileTree(directory, new SimpleFileVisitor<Path>() {
-			@Override
-			public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
-				System.out.println("d " + dir.toAbsolutePath());
-				return FileVisitResult.CONTINUE;
-			}
-
-			@Override
-			public FileVisitResult visitFile(Path selectedPath, BasicFileAttributes attrs) throws IOException {
-				System.out.println("f " + selectedPath.toAbsolutePath());
-				return FileVisitResult.CONTINUE;
-			}
-		});
-		
-	}
-
-	private static void recurseFolder(File folder) {
-		for (File selectedFile : folder.listFiles()) {
-			System.out.println((selectedFile.isDirectory() ? "d" : "f") + " " + selectedFile.getAbsolutePath());
-			if (selectedFile.isDirectory()) {
-				// Note: Symbolic links are followed
-				recurseFolder(selectedFile);
-			}
-		}
-	}
-	
-	public static void iterateOverDirectoryPrintingSubdirectories() throws IOException {
-		final DirectoryStream<Path> paths = Files.newDirectoryStream(Paths.get("dirPath"));
-		for (final Path path : paths) {
-			if (Files.isDirectory(path)) {
-				System.out.println(path.getFileName());
-			}
-		}
 	}
 }
