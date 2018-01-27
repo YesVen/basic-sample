@@ -124,7 +124,6 @@ public class OperationOnFile {
 
 
 	public void readWriteFileUsingFileInputOutputStream() {
-		
 		// Write to a file test.txt
 		String filepath = "C:\\test.txt";
 		FileOutputStream fos = null;

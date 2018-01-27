@@ -8,6 +8,7 @@ import javax.imageio.ImageIO;
 public class ImageProcessing {
 
 	public void readImageFromFile() {
+		
 		try {
 			ImageIO.read(new File("~/Desktop/cat.png"));
 		} catch (IOException e) {
