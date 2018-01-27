@@ -1,130 +1,36 @@
 package com.optsd.basic.sample.io;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedReader;
-import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.nio.ByteBuffer;
+import java.io.PrintStream;
 import java.nio.channels.FileChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Scanner;
+import java.time.LocalDate;
 
-public class OperationOnFile {
-	
-	public void readFileLineByLine() throws IOException {
-		// Read from baseReader, one line at a time
-		BufferedReader reader = new BufferedReader(new FileReader("aa"));
-		String line;
-		while ((line = reader.readLine()) != null) {
-			// Remember: System.out is a stream, not a writer!
-			System.out.println(line);
-		}
-	}
+public class WriteFile {
 	
 	
-	public void readFileWithScanner() {
-		
-		//  line by line
-		try {
-			Scanner scanner = new Scanner(new File("example.txt"));
-			while (scanner.hasNextLine()) {
-				String line = scanner.nextLine();
-				// do stuff
-			}
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		}
-		
-		
-		// word by word
-		try {
-			Scanner scanner = new Scanner(new File("example.txt"));
-			while (scanner.hasNext()) {
-				String line = scanner.next();
-				// do stuff
-			}
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		}
-		
-		
-		// the whole file
-		// \Z is the EOF (End of File)
-		File f = new File("example.txt");
-		try {
-			String content = new Scanner(f).useDelimiter("\\Z").next();
+	public void writeFileUsingPrintStream() {
+		String destination = "file1.txt";
+		try (PrintStream ps = new PrintStream(destination)) {
+			ps.println("Stackoverflow documentation seems fun.");
+			ps.println();
+			ps.println("I love Java!");
+			ps.printf("Today is: %1$tm/%1$td/%1$tY", LocalDate.now());
+			ps.flush();
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		}
 	}
-	
-	
-	public void readFileWithChannel() {
-		File inputFile = new File("hello.txt");
-		if (!inputFile.exists()) {
-			System.out.println("The input file doesn't exit.");
-			return;
-		}
-		try {
-			FileInputStream fis = new FileInputStream(inputFile);
-			FileChannel fileChannel = fis.getChannel();
-			ByteBuffer buffer = ByteBuffer.allocate(1024);
-			while (fileChannel.read(buffer) > 0) {
-				buffer.flip();
-				while (buffer.hasRemaining()) {
-					byte b = buffer.get();
-					System.out.print((char) b);
-				}
-				buffer.clear();
-			}
-			fileChannel.close();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		
-	}
-	
-	
-	public void readFileUsingBufferedInputStream() {
-		// Reading file using a BufferedInputStream generally faster than FileInputStream because it maintains an internal
-		// buffer to store bytes read from the underlying input stream
-		String source = "hello.txt";
-		try (BufferedInputStream bis = new BufferedInputStream(new FileInputStream(source))) {
-			byte data;
-			while ((data = (byte) bis.read()) != -1) {
-				System.out.println((char) data);
-			}
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
-	
-	
-	public void readBinaryFile() throws IOException {
-		// Version >= Java SE 1.4
-		File file = new File("path_to_the_file");
-		byte[] data = new byte[(int) file.length()];
-		DataInputStream stream = new DataInputStream(new FileInputStream(file));
-		stream.readFully(data);
-		stream.close();
-		// If you are using Java 7 or later, there is a simpler way using the nio API:
-		// Version >= Java SE 7
-		Path path = Paths.get("path_to_the_file");
-		byte [] data2 = Files.readAllBytes(path);
-	}
-
 
 	public void readWriteFileUsingFileInputOutputStream() {
-		
 		// Write to a file test.txt
 		String filepath = "C:\\test.txt";
 		FileOutputStream fos = null;
@@ -144,10 +50,9 @@ public class OperationOnFile {
 				} catch (IOException ignored) {
 				}
 		}
-		
-		
+
 		// Read from file test.txt
-		//String filepath = "C:\\test.txt";
+		// String filepath = "C:\\test.txt";
 		FileInputStream fis = null;
 		try {
 			fis = new FileInputStream(filepath);
@@ -165,8 +70,7 @@ public class OperationOnFile {
 				} catch (IOException ignored) {
 				}
 		}
-		
-		
+
 		// Java 1.7 the try-with-resources statement
 		// Write to a file test.txt
 		// String filepath = "C:\\test.txt";
@@ -191,8 +95,7 @@ public class OperationOnFile {
 			e.printStackTrace();
 		}
 	}
-	
-	
+
 	public void readAllBytesToByteArray() {
 		Path path = Paths.get("path/to/file");
 		try {
@@ -202,9 +105,9 @@ public class OperationOnFile {
 		}
 	}
 
-	
 	public void writeByteArrayToFile() {
-		// Most java.io file APIs accept both Strings and Files as arguments, so you could as well use
+		// Most java.io file APIs accept both Strings and Files as arguments, so you
+		// could as well use
 		// File file = new File("Hello world.txt");
 		// FileOutputStream stream = new FileOutputStream(file)
 
@@ -234,10 +137,9 @@ public class OperationOnFile {
 			}
 		}
 	}
-	
-	
+
 	public static class copyFile {
-		
+
 		// Using Channel to copy file content faster
 		public static void copy(File sourceFile, File destFile) {
 			if (!sourceFile.exists() || !destFile.exists()) {
@@ -251,8 +153,7 @@ public class OperationOnFile {
 				e.printStackTrace();
 			}
 		}
-		
-		
+
 		// Using InputStream and OutputStream
 		public void copy(InputStream source, OutputStream destination) throws IOException {
 			try {
@@ -269,13 +170,11 @@ public class OperationOnFile {
 				}
 			}
 		}
-		
-		
+
 		public static void main(String[] args) {
 			File sourceFile = new File("hello.txt");
 			File sinkFile = new File("hello2.txt");
 			copy(sourceFile, sinkFile);
 		}
-
 	}
 }
